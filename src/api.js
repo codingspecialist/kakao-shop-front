@@ -1,15 +1,22 @@
 import axios from "axios";
 
-const instance = axios.create({
-  baseURL:
-    //"http://kakao-app-env.eba-kfsgeb74.ap-northeast-2.elasticbeanstalk.com/"
-    "http://localhost:8080/",
-  timeout: 1000,
-  headers: {
-    "Content-Type": "application/json",
-    Authorization: localStorage.getItem("token"),
+const instance = axios.create();
+
+function getBaseUrl() {
+  return Promise.resolve(
+    "http://localhost:8080/"
+  );
+}
+
+instance.interceptors.request.use(
+  async config => {
+    config.baseURL = await getBaseUrl();
+    config.headers["Content-Type"] = "application/json";
+    config.headers["Authorization"] = localStorage.getItem("token");    
+    return config;
   },
-});
+  error => Promise.reject(error),
+);
 
 instance.interceptors.response.use(
   (response) => {
